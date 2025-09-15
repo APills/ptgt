@@ -13,9 +13,13 @@ for _, memberId in ipairs(members) do
     end
 end
 
-local function BuildPromotionList()
+function BuildPromotionList()
     local guildClubID = C_Club.GetGuildClubId()
+    if not guildClubID then return {} end
+
     local members = C_Club.GetClubMembers(guildClubID)
+    if not members then return {} end
+
     local promotionList = {}
 
     for _, memberId in ipairs(members) do
@@ -25,10 +29,9 @@ local function BuildPromotionList()
             local rankOrder = info.guildRankOrder
             local rankName = info.guildRank or ("Rank " .. tostring(rankOrder))
 
-            local targetRank = nil
-            local targetRankName = nil
-
-            if note:match("%[Infi%]") or note:match("%[Eter%]") or note:match("%[Immo%]") then
+            local noteLower = note:lower()
+            local targetRank, targetRankName
+            if noteLower:match("%[x?ft:?immo%]") or noteLower:match("%[x?ft:?eter%]") or noteLower:match("%[x?ft:?infi%]") then
                 targetRank = 4
                 targetRankName = "Raider Alts"
             elseif note ~= "" then
@@ -51,28 +54,26 @@ local function BuildPromotionList()
     return promotionList
 end
 
+-- Command handler
 function HandlePCommand(cmd)
     if cmd == "pl" then
         local list = BuildPromotionList()
         if #list == 0 then
-            print("|cff00ff00[PTGT Promoter]|r No members need promotion.")
+            print("|cff00ff00[Promoter]|r No members need promotion.")
         else
-            print("|cff00ff00[PTGT Promoter]|r To Promote:")
+            print("|cff00ff00[Promoter]|r Promotion list:")
             for _, entry in ipairs(list) do
                 print(string.format(
-                    "%s (%s → %s)",
+                    "- %s (%s → %s)",
                     entry.name,
-                    entry.currentRankName,
+                    entry.currentRankName or "Unknown",
                     entry.targetRankName or ("Rank " .. tostring(entry.targetRank))
                 ))
             end
         end
-    elseif cmd == "db" then
-        -- promoteFrame:Show()
-        -- print("|cff00ffff[PTGT DEBUG]|r Promote Frame Forced Open.")
     else
         print("|cffffd700Usage:|r /ptgt p <command>")
         print("|cff00ff00Current Module:|r Promoter (p)")
-        print("|cff00ff00Promote Commands:|r Promotion List (pl)")
+        print("|cff00ff00promote Commands:|r Promotion List (pl)")
     end
 end
