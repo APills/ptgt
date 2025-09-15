@@ -1,0 +1,8 @@
+## Interface: 110200
+## Title: Part Time Guild Tools
+## Notes: Part Time Heroes Guild Tools, Whisper Invite, Promotion List
+## Author: Brylic
+## Version: 1.0
+
+PTGInvite.lua
+PTGPromote.lua
