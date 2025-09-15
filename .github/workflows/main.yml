@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+  
+permissions:
+  contents: write  # needed to create releases
+  packages: write
+
 
 jobs:
   release:
