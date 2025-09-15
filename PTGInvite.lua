@@ -87,7 +87,7 @@ function HandleHelpCommand(cmd)
     print("|cff00ffff[PTGT Help]|r")
     print("|cffffd700Usage:|r /ptgt <module> <command>")
     print("To see a list of commands, do /ptgt <module> help")
-    print("Modules: Invite (i)")
+    print("Modules: Invite (i), Promoter (p)")
 end
 
 function HandleICommand(cmd)
