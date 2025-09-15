@@ -1,0 +1,50 @@
+name: Release Addon
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Addon Name and Version from TOC
+        id: toc
+        run: |
+          TOC_FILE=$(ls *.toc | head -n1)
+          ADDON_NAME=$(basename "$TOC_FILE" .toc)
+          BASE_VERSION=$(grep -i "^## Version:" "$TOC_FILE" | awk '{print $3}')
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          VERSION="${BASE_VERSION}.${TIMESTAMP}"
+          TAG="v${VERSION}"
+          echo "ADDON_NAME=$ADDON_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Create ZIP for WoW
+        run: |
+          ZIP_NAME="${ADDON_NAME}_v${VERSION}.zip"
+          zip -r "$ZIP_NAME" . -x "*.git*" -x "*.github/*" -x "*.DS_Store"
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Create GitHub Release and Upload ZIP
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.TAG }}
+          body: "Automated release for ${{ env.ADDON_NAME }} version ${{ env.VERSION }}"
+          files: ${{ env.ZIP_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
